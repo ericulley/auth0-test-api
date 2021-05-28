@@ -43,7 +43,8 @@ app.get('/auth0', async (req, res) => {
             }
         }
     }
-    console.log(output)
+    
+    res.json(output)
 
 })
 
