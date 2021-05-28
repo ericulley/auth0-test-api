@@ -1,38 +1,50 @@
 // Dependencies
 const express = require('express')
 const axios = require('axios')
+const dotenv = require('dotenv')
 const { join } = require("path")
 
 // Config
 const app = express()
-const PORT = 5000
+dotenv.config()
+const PORT = process.env.PORT
+const DOMAIN = process.env.DOMAIN
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN
+
 
 // Middleware
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
-app.engine('html', require('ejs').renderFile)
-app.set('view engine', 'html')
-app.use(express.static(join(__dirname, "public")));
 
 // Routes
-// Endpoint to serve the configuration file
-app.get("/auth_config.json", (req, res) => {
-    res.sendFile(join(__dirname, "auth_config.json"));
-});
+app.get('/auth0', async (req, res) => {
 
-// Serve the index page for all other requests
-app.get("/", (req, res) => {
-    console.log("hellooooo")
-    res.render("index.html")
-});
+    const apps = await axios.get(`${DOMAIN}/api/v2/clients`, {
+        headers: { authorization: ACCESS_TOKEN}
+    }).then((res) => {
+            return res.data
+    })
 
-app.get('/auth0', (req, res) => {
-    console.log("I hit the route from the frontend!!")
-    const appNames = []
-    axios.get('https://current-conditions.us.auth0.com/api/v2/clients')
-        .then((res) => {
-            res.json(res.data)
-        })
+    const rules = await axios.get(`${DOMAIN}/api/v2/rules`, {
+        headers: { authorization: ACCESS_TOKEN}
+    }).then((res) => {
+        console.log(res.data)
+            return res.data
+    })
+
+    const output = {}
+
+    for (let i = 0; i < apps.length; i++) {
+        output[apps[i].name] = {}
+        output[apps[i].name].rules = []
+        for (let j = 0; j < rules.length; j++) {
+            if (rules[j].script.includes(apps[i].name)) {
+                output[apps[i].name].rules.push(rules[j].name)
+            }
+        }
+    }
+    console.log(output)
+
 })
 
 // Listener
