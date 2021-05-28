@@ -2,7 +2,6 @@
 const express = require('express')
 const axios = require('axios')
 const dotenv = require('dotenv')
-const { join } = require("path")
 
 // Config
 const app = express()
