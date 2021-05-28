@@ -1,0 +1,1 @@
+Creating an endpoint that will hit the Auth0 Management API to retrieve all clients & rules from the users tenant and then output an object that groups all rules associated with a specific client.
