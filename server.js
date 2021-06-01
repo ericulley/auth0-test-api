@@ -1,51 +1,86 @@
 // Dependencies
 const express = require('express')
-const axios = require('axios')
+const axios = require('axios').default
 const dotenv = require('dotenv')
+const cors = require('cors')
+const jwt = require('express-jwt')
+const jwks = require('jwks-rsa')
 
 // Config
 const app = express()
 dotenv.config()
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 8080
 const DOMAIN = process.env.DOMAIN
-const ACCESS_TOKEN = process.env.ACCESS_TOKEN
+const CLIENT_ID = process.env.CLIENT_ID
+const CLIENT_SECRET = process.env.CLIENT_SECRET
+
+// JWT Config
+var jwtCheck = jwt({
+    secret: jwks.expressJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: 'https://current-conditions.us.auth0.com/.well-known/jwks.json'
+  }),
+  audience: 'https://localhost:8080',
+  issuer: 'https://current-conditions.us.auth0.com/',
+  algorithms: ['RS256']
+})
+app.use(jwtCheck)
 
 
 // Middleware
 app.use(express.json())
-app.use(express.urlencoded({extended: true}))
+app.use(cors())
 
 // Routes
-app.get('/auth0', async (req, res) => {
+app.get('/mgmt/rules-per-app', jwtCheck, async (req, res) => {
+
+    // Config request options
+    let options = {
+        method: `POST`,
+        url: `https://${DOMAIN}/oauth/token`,
+        headers: {'content-type': 'application/json'},
+        data: {
+            grant_type: 'client_credentials',
+            client_id: `${CLIENT_ID}`,
+            client_secret: `${CLIENT_SECRET}`,
+            audience: `https://${DOMAIN}/api/v2/`
+        }
+    }
+    //Fetch and format access token
+    const ACCESS_TOKEN = await axios.request(options).then((res) => {
+        return `Bearer ${res.data.access_token}`
+    })
 
     // Fetch apps/clients
-    const apps = await axios.get(`${DOMAIN}/api/v2/clients`, {
+    const apps = await axios.get(`https://${DOMAIN}/api/v2/clients`, {
         headers: { authorization: ACCESS_TOKEN}
     }).then((res) => {
             return res.data
     })
 
     //Fetch rules
-    const rules = await axios.get(`${DOMAIN}/api/v2/rules`, {
+    const rules = await axios.get(`https://${DOMAIN}/api/v2/rules`, {
         headers: { authorization: ACCESS_TOKEN}
     }).then((res) => {
-        console.log(res.data)
             return res.data
     })
 
     // Init output variable
-    const output = {}
+    const output = []
 
     // Loop through one app at a time
     for (let i = 0; i < apps.length; i++) {
         // Init key/value pairs for each app
-        output[apps[i].name] = {}
-        output[apps[i].name].rules = []
+        output[i] = {}
+        output[i].app = apps[i].name
+        output[i].rules = []
         // Loop through each rule and check for app name within the script
         for (let j = 0; j < rules.length; j++) {
             // If found, push that rule into the rules array of that app
             if (rules[j].script.includes(apps[i].name)) {
-                output[apps[i].name].rules.push(rules[j].name)
+                output[i].rules.push(rules[j].name)
             }
         }
     }
