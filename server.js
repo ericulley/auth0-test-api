@@ -14,24 +14,24 @@ const DOMAIN = process.env.DOMAIN
 const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
 
+// Middleware
+app.use(express.json())
+app.use(cors())
+
 // JWT Config
 var jwtCheck = jwt({
     secret: jwks.expressJwtSecret({
         cache: true,
         rateLimit: true,
         jwksRequestsPerMinute: 5,
-        jwksUri: 'https://current-conditions.us.auth0.com/.well-known/jwks.json'
+        jwksUri: `https://${DOMAIN}/.well-known/jwks.json`
   }),
+  // Set audience to the identifier of the API you created
   audience: 'https://localhost:8080',
-  issuer: 'https://current-conditions.us.auth0.com/',
+  issuer: `https://${DOMAIN}/`,
   algorithms: ['RS256']
 })
 app.use(jwtCheck)
-
-
-// Middleware
-app.use(express.json())
-app.use(cors())
 
 // Routes
 app.get('/mgmt/rules-per-app', jwtCheck, async (req, res) => {
