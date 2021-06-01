@@ -8,11 +8,12 @@ To Test:
 
 3.) Run 'npm install' in it's root directory. 
 
-4.) Create a .env file and inside assign the following values. These values can be found under the settings tab of the machine-to-machine app that shares the name of your newly created api. PORT can be assigned any open port, or it will default to 8080:
+4.) Create a .env file and inside assign the following values. These values can be found under the settings tab of the machine-to-machine app that shares the name of your newly created api. PORT can be assigned any open port, or it will default to 8080. Lastly, set the audience to the identifier, found under the settings tab, of the API you created:
     - PORT=
     - DOMAIN=
     - CLIENT_ID=
     - CLIENT_SECRET=
+    - AUDIENCE=
 
 5.) Ensure that you have set the appropriate permissions of you API machine-to-machine application to access at least the read:clients & read:rules scopes. 
 

@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 8080
 const DOMAIN = process.env.DOMAIN
 const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
+const AUDIENCE = process.env.AUDIENCE
 
 // Middleware
 app.use(express.json())
@@ -27,7 +28,7 @@ var jwtCheck = jwt({
         jwksUri: `https://${DOMAIN}/.well-known/jwks.json`
   }),
   // Set audience to the identifier of the API you created
-  audience: 'https://localhost:8080',
+  audience: `${AUDIENCE}`,
   issuer: `https://${DOMAIN}/`,
   algorithms: ['RS256']
 })
