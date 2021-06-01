@@ -8,7 +8,7 @@ To Test:
 
 3.) Run 'npm install' in it's root directory. 
 
-4.) Create a .env file and inside assign the following values:
+4.) Create a .env file and inside assign the following values. These values can be found under the settings tab of the machine-to-machine app that shares the name of your newly created api. PORT can be assigned any open port, or it will default to 8080:
     - PORT=
     - DOMAIN=
     - CLIENT_ID=
