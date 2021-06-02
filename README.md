@@ -1,4 +1,4 @@
-Creating an API that will hit the Auth0 Management API to retrieve all clients & rules from the users tenant and then output an array that groups all rules associated with a specific client.
+An API that will hit the Auth0 Management API to retrieve all clients & rules from the users tenant and then output an array that groups all rules associated with a specific client.
 
 To Test:
 
