@@ -82,8 +82,21 @@ app.get('/mgmt/rules-per-app', jwtCheck, async (req, res) => {
             // If found, push that rule into the rules array of that app
             if (rules[j].script.includes(apps[i].name)) {
                 output[i].rules.push(rules[j].name)
+                // Then denote if an specific app was found in that rule
+                rules[j].appFound = true
             }
         }
+    }
+
+    // Check for rules where no app was specified
+    for (let i = 0; i < rules.length; i++) {
+        if (!rules[i].appFound) {
+            for (let j = 0; j < output.length; j++) {
+                // ...then push them into all apps
+                output[j].rules.push(rules[i].name)
+            }
+        }
+        
     }
 
     // Return the output
